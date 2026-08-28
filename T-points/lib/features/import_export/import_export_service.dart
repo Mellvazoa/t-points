@@ -23,7 +23,14 @@ class ImportExportService {
 
     final file = File(result.files.single.path!);
     final content = await file.readAsString();
-    final rows = const CsvToListConverter().convert(content);
+
+    // Auto-detect delimiter: semicolon ';' (often used in Russian Excel/Numbers) or comma ','
+    String delimiter = ',';
+    if (content.contains(';') && !content.contains('\t')) {
+      delimiter = ';';
+    }
+
+    final rows = CsvToListConverter(fieldDelimiter: delimiter).convert(content);
 
     return _parseRows(rows);
   }
@@ -66,12 +73,16 @@ class ImportExportService {
       int? t;
 
       if (row.length >= 3) {
-        sysName = row[0].toString();
-        b = double.tryParse(row[1].toString());
-        t = int.tryParse(row[2].toString());
+        sysName = row[0].toString().trim();
+        final bStr = row[1].toString().replaceAll(',', '.').replaceAll(' ', '').trim();
+        b = double.tryParse(bStr);
+        final tStr = row[2].toString().replaceAll(' ', '').trim();
+        t = int.tryParse(tStr);
       } else {
-        b = double.tryParse(row[0].toString());
-        t = int.tryParse(row[1].toString());
+        final bStr = row[0].toString().replaceAll(',', '.').replaceAll(' ', '').trim();
+        b = double.tryParse(bStr);
+        final tStr = row[1].toString().replaceAll(' ', '').trim();
+        t = int.tryParse(tStr);
       }
 
       if (b == null || t == null) continue;
