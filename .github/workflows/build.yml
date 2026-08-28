@@ -1,0 +1,51 @@
+name: Build Windows Application
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Install dependencies
+        run: |
+          cd T-points
+          flutter pub get
+
+      - name: Enable Windows desktop build
+        run: |
+          cd T-points
+          flutter config --enable-windows-desktop
+
+      - name: Build Windows executable
+        run: |
+          cd T-points
+          flutter build windows --release
+
+      - name: Package Release
+        shell: pwsh
+        run: |
+          # Compress the Release folder containing the exe and all DLL dependencies
+          Compress-Archive -Path T-points/build/windows/x64/runner/Release/* -DestinationPath T-points/build/windows/x64/runner/t-points-windows.zip
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: t-points-windows-build
+          path: T-points/build/windows/x64/runner/t-points-windows.zip
