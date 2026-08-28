@@ -53,18 +53,44 @@ class _DataEntryScreenState extends ConsumerState<DataEntryScreen>
   }
 
   Future<void> _importCsv() async {
-    final systems = await ImportExportService.importCsv();
-    if (systems != null && systems.isNotEmpty) {
-      ref.read(systemsProvider.notifier).setSystems(systems);
-      ref.read(activeSystemIdProvider.notifier).state = systems.first.id;
+    try {
+      final systems = await ImportExportService.importCsv();
+      if (systems != null && systems.isNotEmpty) {
+        ref.read(systemsProvider.notifier).setSystems(systems);
+        ref.read(activeSystemIdProvider.notifier).state = systems.first.id;
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Данные CSV успешно импортированы')),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Ошибка импорта CSV: $e')),
+        );
+      }
     }
   }
 
   Future<void> _importExcel() async {
-    final systems = await ImportExportService.importExcel();
-    if (systems != null && systems.isNotEmpty) {
-      ref.read(systemsProvider.notifier).setSystems(systems);
-      ref.read(activeSystemIdProvider.notifier).state = systems.first.id;
+    try {
+      final systems = await ImportExportService.importExcel();
+      if (systems != null && systems.isNotEmpty) {
+        ref.read(systemsProvider.notifier).setSystems(systems);
+        ref.read(activeSystemIdProvider.notifier).state = systems.first.id;
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Данные Excel успешно импортированы')),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Ошибка импорта Excel: $e')),
+        );
+      }
     }
   }
 

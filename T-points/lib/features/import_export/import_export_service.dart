@@ -1,6 +1,7 @@
 /// Import/Export service for CSV and Excel files.
 library;
 
+import 'dart:convert';
 import 'dart:io';
 import 'package:csv/csv.dart';
 import 'package:excel/excel.dart' as xl;
@@ -18,11 +19,13 @@ class ImportExportService {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['csv'],
+      withData: true,
     );
     if (result == null || result.files.isEmpty) return null;
 
-    final file = File(result.files.single.path!);
-    final content = await file.readAsString();
+    final bytes = result.files.single.bytes;
+    if (bytes == null) return null;
+    final content = utf8.decode(bytes, allowMalformed: true);
 
     // Auto-detect delimiter: semicolon ';' (often used in Russian Excel/Numbers) or comma ','
     String delimiter = ',';
@@ -41,10 +44,12 @@ class ImportExportService {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['xlsx', 'xls'],
+      withData: true,
     );
     if (result == null || result.files.isEmpty) return null;
 
-    final bytes = File(result.files.single.path!).readAsBytesSync();
+    final bytes = result.files.single.bytes;
+    if (bytes == null) return null;
     final excel = xl.Excel.decodeBytes(bytes);
 
     final rows = <List<dynamic>>[];
