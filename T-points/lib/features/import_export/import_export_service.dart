@@ -33,7 +33,10 @@ class ImportExportService {
       delimiter = ';';
     }
 
-    final rows = CsvToListConverter(fieldDelimiter: delimiter).convert(content);
+    // Auto-detect EOL since macOS/Linux might use \n instead of \r\n
+    final eol = content.contains('\r\n') ? '\r\n' : '\n';
+
+    final rows = CsvToListConverter(fieldDelimiter: delimiter, eol: eol).convert(content);
 
     return _parseRows(rows);
   }
@@ -50,7 +53,13 @@ class ImportExportService {
 
     final bytes = result.files.single.bytes;
     if (bytes == null) return null;
-    final excel = xl.Excel.decodeBytes(bytes);
+    
+    xl.Excel excel;
+    try {
+      excel = xl.Excel.decodeBytes(bytes);
+    } catch (e) {
+      throw const FormatException('Неподдерживаемый формат. Убедитесь, что это файл .xlsx');
+    }
 
     final rows = <List<dynamic>>[];
     for (final table in excel.tables.keys) {
