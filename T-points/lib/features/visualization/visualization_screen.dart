@@ -435,31 +435,37 @@ class _VisualizationScreenState extends ConsumerState<VisualizationScreen>
 class _ChartLegend extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    return Wrap(
+      alignment: WrapAlignment.center,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: 24,
+      runSpacing: 8,
       children: [
         _LegendItem(
           color: AppColors.chartLower,
           label: 'L(s) — нижняя граница m',
         ),
-        const SizedBox(width: 32),
         _LegendItem(
           color: AppColors.chartUpper,
           label: 'U(s) — верхняя граница m',
         ),
-        const SizedBox(width: 32),
-        Container(
-          width: 20,
-          height: 12,
-          decoration: BoxDecoration(
-            color: AppColors.chartFill,
-            borderRadius: BorderRadius.circular(3),
-          ),
-        ),
-        const SizedBox(width: 8),
-        const Text(
-          'Допустимая область',
-          style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 20,
+              height: 12,
+              decoration: BoxDecoration(
+                color: AppColors.chartFill,
+                borderRadius: BorderRadius.circular(3),
+              ),
+            ),
+            const SizedBox(width: 8),
+            const Text(
+              'Допустимая область',
+              style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
+            ),
+          ],
         ),
       ],
     );
